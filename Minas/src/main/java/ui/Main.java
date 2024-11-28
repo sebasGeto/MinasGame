@@ -1,11 +1,15 @@
 package ui;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -17,8 +21,11 @@ public class Main extends Application {
     private Game game;
     private static final int GRID_SIZE = 5;
     private static final int TILE_SIZE = 80;
-
     private boolean gameOver = false;
+
+    // Cargar las imágenes una sola vez para optimizar
+    private final Image bombImage = new Image(getClass().getResourceAsStream("/images/bomba.png"));
+    private final Image diamondImage = new Image(getClass().getResourceAsStream("/images/diamante.png"));
 
     public static void main(String[] args) {
         launch(args);
@@ -26,6 +33,39 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        showStartMenu(primaryStage);
+    }
+
+    private void showStartMenu(Stage primaryStage) {
+        VBox menu = new VBox(10);
+        menu.setPadding(new Insets(20));
+        menu.setStyle("-fx-background-color: #ffffff;");
+
+        Label title = new Label("Bienvenido al Juego de Minas");
+        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Label instruction = new Label("Selecciona la cantidad de minas:");
+        instruction.setStyle("-fx-font-size: 14px;");
+
+        Button btn3Mines = new Button("3 Minas");
+        Button btn4Mines = new Button("4 Minas");
+        Button btn5Mines = new Button("5 Minas");
+        Button btn6Mines = new Button("6 Minas");
+
+        btn3Mines.setOnAction(e -> startGame(primaryStage, 3));
+        btn4Mines.setOnAction(e -> startGame(primaryStage, 4));
+        btn5Mines.setOnAction(e -> startGame(primaryStage, 5));
+        btn6Mines.setOnAction(e -> startGame(primaryStage, 6));
+
+        menu.getChildren().addAll(title, instruction, btn3Mines, btn4Mines, btn5Mines, btn6Mines);
+
+        Scene menuScene = new Scene(menu, 300, 200);
+        primaryStage.setScene(menuScene);
+        primaryStage.setTitle("Menú de Inicio");
+        primaryStage.show();
+    }
+
+    private void startGame(Stage primaryStage, int numMines) {
         Graph<String> graph = new AdjacencyListGraph<>();
 
         // Crear los vértices del grafo
@@ -37,11 +77,9 @@ public class Main extends Application {
         }
 
         game = new Game(graph, GRID_SIZE, GRID_SIZE);
+        game.placeMines(numMines);
 
         GridPane grid = new GridPane();
-
-        Image bombImage = new Image(getClass().getResourceAsStream("/images/bomba.png"));
-        Image diamondImage = new Image(getClass().getResourceAsStream("/images/diamante.png"));
 
         // Crear la cuadrícula
         for (int i = 0; i < GRID_SIZE; i++) {
@@ -58,14 +96,15 @@ public class Main extends Application {
                     String nodeName = game.getNodeName(row, col);
 
                     if (game.isMine(nodeName)) {
-                        // Mostrar imagen de bomba y terminar el juego
-                        grid.add(new ImageView(bombImage), col, row);
-                        tile.setFill(Color.BLACK);
+                        // Mostrar imagen de bomba
+                        tile.setFill(null); // Eliminar color de relleno
+                        grid.add(createImageView(bombImage), col, row);
                         endGame(false);
                     } else {
-                        // Mostrar imagen de diamante
-                        grid.add(new ImageView(diamondImage), col, row);
-                        tile.setFill(Color.GREEN);
+                        // Mostrar imagen de diamante en casilla segura
+                        tile.setFill(null); // Eliminar color de relleno
+                        grid.add(createImageView(diamondImage), col, row);
+
                         game.movePlayer(row, col);
 
                         if (game.hasReachedGoal()) {
@@ -74,10 +113,11 @@ public class Main extends Application {
                     }
                 });
 
-                // Indicar posición inicial y meta
+                // Posición inicial del jugador
                 if (game.getPlayerPosition().equals(game.getNodeName(i, j))) {
                     tile.setFill(Color.GREEN);
                 }
+                // Posición de la meta
                 if (game.getGoalPosition().equals(game.getNodeName(i, j))) {
                     tile.setFill(Color.RED);
                 }
@@ -86,10 +126,17 @@ public class Main extends Application {
             }
         }
 
-        Scene scene = new Scene(grid, TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE);
-        primaryStage.setTitle("JUEGO DE MINAS");
-        primaryStage.setScene(scene);
+        Scene gameScene = new Scene(grid, TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE);
+        primaryStage.setScene(gameScene);
+        primaryStage.setTitle("Juego de Minas - " + numMines + " Minas");
         primaryStage.show();
+    }
+
+    private ImageView createImageView(Image image) {
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(TILE_SIZE);
+        imageView.setFitHeight(TILE_SIZE);
+        return imageView;
     }
 
     private void endGame(boolean hasWon) {
@@ -97,13 +144,13 @@ public class Main extends Application {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         if (hasWon) {
-            alert.setTitle("VICTORIA");
-            alert.setHeaderText("FELICITACIONES");
-            alert.setContentText("LLEGASTE A LA META, BIEN HECHO");
+            alert.setTitle("¡Victoria!");
+            alert.setHeaderText("¡Felicitaciones!");
+            alert.setContentText("Has alcanzado la meta con éxito. ¡Bien hecho!");
         } else {
-            alert.setTitle("DERROTA");
-            alert.setHeaderText("EL JUEGO HA TERMINADO");
-            alert.setContentText("HAS PERDIDO, PISASTE UNA MINA. INTENTALO NUEVAMENTE");
+            alert.setTitle("Derrota");
+            alert.setHeaderText("¡Juego Terminado!");
+            alert.setContentText("Has perdido porque pisaste una mina. Intenta nuevamente.");
         }
         alert.showAndWait();
     }

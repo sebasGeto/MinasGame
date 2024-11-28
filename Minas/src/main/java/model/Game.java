@@ -17,16 +17,21 @@ public class Game {
         this.mines = new HashSet<>();
         this.playerPosition = getNodeName(0, 0);
         this.goalPosition = getNodeName(rows - 1, cols - 1);
-
-        placeMines();
     }
 
-    private void placeMines() {
-        for (int i = 0; i < 5; i++) { // Colocamos 5 minas
-            int row = (int) (Math.random() * rows);
-            int col = (int) (Math.random() * cols);
+    public void placeMines(int numberOfMines) {
+        mines.clear(); // Limpiar minas previas si existían
+        Random random = new Random();
+
+        while (mines.size() < numberOfMines) {
+            int row = random.nextInt(rows);
+            int col = random.nextInt(cols);
             String nodeName = getNodeName(row, col);
-            mines.add(nodeName);
+
+            // Evitar que las minas se coloquen en la posición inicial o la meta
+            if (!nodeName.equals(playerPosition) && !nodeName.equals(goalPosition)) {
+                mines.add(nodeName);
+            }
         }
     }
 
@@ -60,7 +65,3 @@ public class Game {
         return goalPosition;
     }
 }
-
-
-
-
