@@ -19,8 +19,8 @@ import model.AdjacencyListGraph;
 
 public class Main extends Application {
     private Game game;
-    private static final int GRID_SIZE = 5;
-    private static final int TILE_SIZE = 80;
+    private static final int GRID_SIZE = 8;
+    private static final int TILE_SIZE = 50;
     private boolean gameOver = false;
 
     // Cargar las imágenes una sola vez para optimizar
