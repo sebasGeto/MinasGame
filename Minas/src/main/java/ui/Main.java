@@ -19,7 +19,8 @@ import model.AdjacencyListGraph;
 
 public class Main extends Application {
     private Game game;
-    private static final int GRID_SIZE = 5;
+    private static final int ROWS = 5;  // Filas para la cuadrícula
+    private static final int COLS = 10; // Columnas para la cuadrícula
     private static final int TILE_SIZE = 80;
     private boolean gameOver = false;
 
@@ -51,11 +52,13 @@ public class Main extends Application {
         Button btn4Mines = new Button("4 Minas");
         Button btn5Mines = new Button("5 Minas");
         Button btn6Mines = new Button("6 Minas");
+        
 
         btn3Mines.setOnAction(e -> startGame(primaryStage, 3));
         btn4Mines.setOnAction(e -> startGame(primaryStage, 4));
         btn5Mines.setOnAction(e -> startGame(primaryStage, 5));
         btn6Mines.setOnAction(e -> startGame(primaryStage, 6));
+
 
         menu.getChildren().addAll(title, instruction, btn3Mines, btn4Mines, btn5Mines, btn6Mines);
 
@@ -68,22 +71,48 @@ public class Main extends Application {
     private void startGame(Stage primaryStage, int numMines) {
         Graph<String> graph = new AdjacencyListGraph<>();
 
-        // Crear los vértices del grafo
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        // Crear los vértices del grafo (50 vértices)
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 String nodeName = "Node" + i + "_" + j;
                 graph.addVertex(nodeName);
             }
         }
 
-        game = new Game(graph, GRID_SIZE, GRID_SIZE);
+        // Crear las aristas (50 aristas, conectando nodos adyacentes)
+        int edgeCount = 0;
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                String currentNode = "Node" + i + "_" + j;
+
+                // Conectar con el nodo a la derecha
+                if (j + 1 < COLS && edgeCount < 50) {
+                    String rightNode = "Node" + i + "_" + (j + 1);
+                    graph.addEdge(currentNode, rightNode, 1);
+                    edgeCount++;
+                }
+
+                // Conectar con el nodo de abajo
+                if (i + 1 < ROWS && edgeCount < 50) {
+                    String bottomNode = "Node" + (i + 1) + "_" + j;
+                    graph.addEdge(currentNode, bottomNode, 1);
+                    edgeCount++;
+                }
+
+                if (edgeCount >= 50) break;
+            }
+            if (edgeCount >= 50) break;
+        }
+
+        // Inicializar el juego
+        game = new Game(graph, ROWS, COLS);
         game.placeMines(numMines);
 
+        // Crear la cuadrícula
         GridPane grid = new GridPane();
 
-        // Crear la cuadrícula
-        for (int i = 0; i < GRID_SIZE; i++) {
-            for (int j = 0; j < GRID_SIZE; j++) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
                 final int row = i;
                 final int col = j;
 
@@ -126,7 +155,7 @@ public class Main extends Application {
             }
         }
 
-        Scene gameScene = new Scene(grid, TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE);
+        Scene gameScene = new Scene(grid, TILE_SIZE * COLS, TILE_SIZE * ROWS);
         primaryStage.setScene(gameScene);
         primaryStage.setTitle("Juego de Minas - " + numMines + " Minas");
         primaryStage.show();
@@ -155,3 +184,4 @@ public class Main extends Application {
         alert.showAndWait();
     }
 }
+
