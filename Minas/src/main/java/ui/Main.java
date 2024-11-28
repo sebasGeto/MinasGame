@@ -40,7 +40,6 @@ public class Main extends Application {
 
         GridPane grid = new GridPane();
 
-        // Cargar las imágenes
         Image bombImage = new Image(getClass().getResourceAsStream("/images/bomba.png"));
         Image diamondImage = new Image(getClass().getResourceAsStream("/images/diamante.png"));
 
@@ -50,7 +49,7 @@ public class Main extends Application {
                 final int row = i;
                 final int col = j;
 
-                Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE, Color.BLUE);
+                Rectangle tile = new Rectangle(TILE_SIZE, TILE_SIZE, Color.WHITE);
                 tile.setStroke(Color.BLACK);
 
                 tile.setOnMouseClicked(event -> {
@@ -77,7 +76,7 @@ public class Main extends Application {
 
                 // Indicar posición inicial y meta
                 if (game.getPlayerPosition().equals(game.getNodeName(i, j))) {
-                    tile.setFill(Color.YELLOW);
+                    tile.setFill(Color.GREEN);
                 }
                 if (game.getGoalPosition().equals(game.getNodeName(i, j))) {
                     tile.setFill(Color.RED);
@@ -88,7 +87,7 @@ public class Main extends Application {
         }
 
         Scene scene = new Scene(grid, TILE_SIZE * GRID_SIZE, TILE_SIZE * GRID_SIZE);
-        primaryStage.setTitle("Juego de Minas");
+        primaryStage.setTitle("JUEGO DE MINAS");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -98,13 +97,13 @@ public class Main extends Application {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         if (hasWon) {
-            alert.setTitle("¡Victoria!");
-            alert.setHeaderText("¡Felicitaciones!");
-            alert.setContentText("Has alcanzado la meta con éxito. ¡Bien hecho!");
+            alert.setTitle("VICTORIA");
+            alert.setHeaderText("FELICITACIONES");
+            alert.setContentText("LLEGASTE A LA META, BIEN HECHO");
         } else {
-            alert.setTitle("Derrota");
-            alert.setHeaderText("¡Juego Terminado!");
-            alert.setContentText("Has perdido porque pisaste una mina. Intenta nuevamente.");
+            alert.setTitle("DERROTA");
+            alert.setHeaderText("EL JUEGO HA TERMINADO");
+            alert.setContentText("HAS PERDIDO, PISASTE UNA MINA. INTENTALO NUEVAMENTE");
         }
         alert.showAndWait();
     }
